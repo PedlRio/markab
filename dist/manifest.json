@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "new-tab-mark",
+  "version": "0.1.0",
+  "description": "A markdown editor for your new tab page with Obsidian vault sync",
+  "chrome_url_overrides": {
+    "newtab": "src/newtab/index.html"
+  },
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_title": "new-tab-mark"
+  },
+  "background": {
+    "service_worker": "service-worker-loader.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "resources": [
+        "**/*",
+        "*"
+      ],
+      "use_dynamic_url": false
+    }
+  ]
+}
