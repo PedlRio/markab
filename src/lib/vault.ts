@@ -1,5 +1,5 @@
-import type { Folder, Note } from '../types'
-import { idbGet, idbSet, idbDel } from './idb'
+import { idbDel, idbGet, idbSet } from './idb'
+import type { Folder, Note } from './types'
 
 const HANDLE_KEY = 'vaultHandle'
 
@@ -51,6 +51,11 @@ export async function loadStoredHandle(): Promise<FileSystemDirectoryHandle | nu
   return handle ?? null
 }
 
+/**
+ * Chrome forgets File System Access grants between sessions, so a stored handle usually
+ * comes back as 'prompt'. Only `requestPermission` inside a user gesture (a click) can
+ * turn it back into 'granted' — never call it with `prompt = true` outside a click handler.
+ */
 export async function verifyPermission(
   handle: FileSystemDirectoryHandle,
   prompt = false,
@@ -74,16 +79,17 @@ export async function disconnectVault(): Promise<void> {
 async function resolveFolderHandle(
   root: FileSystemDirectoryHandle,
   path: string,
+  create = true,
 ): Promise<FileSystemDirectoryHandle> {
   if (!path) return root
   let current = root
   for (const segment of path.split('/').filter(Boolean)) {
-    current = await current.getDirectoryHandle(segment, { create: true })
+    current = await current.getDirectoryHandle(segment, { create })
   }
   return current
 }
 
-function serialize(note: Note): string {
+export function serialize(note: Note): string {
   const frontmatter = [
     '---',
     `id: ${note.id}`,
@@ -102,6 +108,16 @@ export interface SyncLocation {
   filename: string
 }
 
+/** Last place a note was written to, read from the note itself. */
+export function syncedLocation(note: Note): SyncLocation | undefined {
+  if (!note.syncedFilename) return undefined
+  return { filename: note.syncedFilename, folderPath: note.syncedFolderPath ?? '' }
+}
+
+/**
+ * Writes the note at its current path. When it was previously written somewhere else
+ * (renamed title or moved folder), the old file is removed only after the new one is safe.
+ */
 export async function writeNote(
   handle: FileSystemDirectoryHandle,
   note: Note,
@@ -109,15 +125,14 @@ export async function writeNote(
   previous?: SyncLocation,
 ): Promise<SyncLocation> {
   const filename = noteFilename(note)
-  if (previous && (previous.filename !== filename || previous.folderPath !== folderPathStr)) {
-    const prevDir = await resolveFolderHandle(handle, previous.folderPath).catch(() => null)
-    if (prevDir) await prevDir.removeEntry(previous.filename).catch(() => {})
-  }
   const dir = await resolveFolderHandle(handle, folderPathStr)
   const fileHandle = await dir.getFileHandle(filename, { create: true })
   const writable = await fileHandle.createWritable()
   await writable.write(serialize(note))
   await writable.close()
+  if (previous && (previous.filename !== filename || previous.folderPath !== folderPathStr)) {
+    await removeNote(handle, previous)
+  }
   return { folderPath: folderPathStr, filename }
 }
 
@@ -125,18 +140,7 @@ export async function removeNote(
   handle: FileSystemDirectoryHandle,
   loc: SyncLocation,
 ): Promise<void> {
-  const dir = await resolveFolderHandle(handle, loc.folderPath).catch(() => null)
+  const dir = await resolveFolderHandle(handle, loc.folderPath, false).catch(() => null)
   if (!dir) return
   await dir.removeEntry(loc.filename).catch(() => {})
-}
-
-export async function syncAll(
-  handle: FileSystemDirectoryHandle,
-  notes: Note[],
-  folders: Folder[],
-): Promise<void> {
-  for (const note of notes) {
-    const path = folderPath(note.folderId, folders)
-    await writeNote(handle, note, path)
-  }
 }

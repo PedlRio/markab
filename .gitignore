@@ -1,5 +1,9 @@
 node_modules
-dist-zip
+.output
+.wxt
+web-ext.config.ts
+test-results
+playwright-report
 *.local
 .DS_Store
 .claude/settings.local.json
