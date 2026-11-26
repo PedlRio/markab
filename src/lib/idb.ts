@@ -1,3 +1,4 @@
+// Name kept from the original build so an already-connected vault survives the upgrade.
 const DB_NAME = 'ntm'
 const STORE = 'kv'
 const VERSION = 1

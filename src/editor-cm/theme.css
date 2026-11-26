@@ -1,0 +1,445 @@
+/*
+ * Markab's own design tokens, named after Obsidian's public CSS-variable API
+ * (docs.obsidian.md/Reference/CSS+variables). Matching the *names* means Obsidian
+ * theme snippets can be adapted almost verbatim. The *values* are Markab's own —
+ * nothing here is copied from Obsidian's app.css.
+ */
+.mk-theme {
+  /* Foundations — colour */
+  --color-base-00: #1b1b1d;
+  --color-base-10: #212124;
+  --color-base-20: #26262a;
+  --color-base-25: #2b2b30;
+  --color-base-30: #34343a;
+  --color-base-35: #3d3d44;
+  --color-base-40: #4a4a52;
+  --color-base-50: #6b6b75;
+  --color-base-60: #92929c;
+  --color-base-70: #b4b4bd;
+  --color-base-100: #dcdce2;
+  --accent-h: 258;
+  --accent-s: 82%;
+  --accent-l: 68%;
+  --color-accent: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+  --color-accent-1: hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) + 6%));
+  --color-red: #f0626a;
+  --color-orange: #ee9a55;
+  --color-yellow: #e5c15a;
+  --color-green: #5fc48a;
+  --color-cyan: #4fc6d0;
+  --color-blue: #5a9cf2;
+  --color-purple: #a98af5;
+  --color-pink: #f07bb7;
+
+  /* Semantic */
+  --background-primary: var(--color-base-00);
+  --background-primary-alt: var(--color-base-10);
+  --background-secondary: var(--color-base-20);
+  --background-modifier-border: var(--color-base-30);
+  --background-modifier-hover: rgb(255 255 255 / 0.06);
+  --text-normal: var(--color-base-100);
+  --text-muted: var(--color-base-70);
+  --text-faint: var(--color-base-50);
+  --text-accent: var(--color-accent);
+  --text-accent-hover: var(--color-accent-1);
+  --text-selection: hsl(var(--accent-h) 60% 50% / 0.3);
+  --text-highlight-bg: rgb(229 193 90 / 0.35);
+  --interactive-accent: var(--color-accent);
+
+  /* Typography */
+  --font-text: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-monospace: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-text-size: var(--mk-font-size, 16px);
+  --line-height-normal: 1.6;
+  --file-line-width: var(--mk-content-width, 700px);
+  --bold-weight: 600;
+  --h1-size: 1.62em;
+  --h2-size: 1.42em;
+  --h3-size: 1.25em;
+  --h4-size: 1.12em;
+  --h5-size: 1.05em;
+  --h6-size: 1em;
+  --h1-weight: 700;
+  --h2-weight: 650;
+  --h3-weight: 600;
+  --h4-weight: 600;
+  --h5-weight: 600;
+  --h6-weight: 600;
+  --heading-spacing: 1.2em;
+
+  /* Editor components */
+  --link-color: var(--text-accent);
+  --link-external-color: var(--text-accent);
+  --link-decoration: underline;
+  --link-decoration-thickness: 1px;
+  --code-background: var(--background-primary-alt);
+  --code-normal: var(--text-normal);
+  --code-size: 0.875em;
+  --code-radius: 4px;
+  --code-comment: var(--text-faint);
+  --code-keyword: var(--color-pink);
+  --code-string: var(--color-green);
+  --code-function: var(--color-yellow);
+  --code-value: var(--color-purple);
+  --code-property: var(--color-cyan);
+  --code-tag: var(--color-red);
+  --code-operator: var(--color-red);
+  --code-punctuation: var(--text-muted);
+  --blockquote-border-thickness: 2px;
+  --blockquote-border-color: var(--interactive-accent);
+  --checkbox-size: 1em;
+  --checkbox-radius: 4px;
+  --checkbox-color: var(--interactive-accent);
+  --checkbox-border-color: var(--text-faint);
+  --checklist-done-color: var(--text-muted);
+  --checklist-done-decoration: line-through;
+  --hr-color: var(--background-modifier-border);
+  --hr-thickness: 2px;
+  --list-bullet-size: 0.3em;
+  --list-marker-color: var(--text-faint);
+  --callout-radius: 4px;
+  --callout-padding: 12px 12px 12px 24px;
+
+  /* Workspace */
+  --divider-color: var(--background-modifier-border);
+  --ribbon-background: var(--background-secondary);
+  --ribbon-width: 44px;
+  --tab-container-background: var(--background-secondary);
+  --tab-background-active: var(--background-primary);
+  --tab-text-color: var(--text-faint);
+  --tab-text-color-active: var(--text-normal);
+  --header-height: 40px;
+  --icon-size: 18px;
+  --icon-color: var(--text-muted);
+  --icon-color-hover: var(--text-normal);
+  --nav-item-size: 13px;
+  --nav-item-color: var(--text-muted);
+  --nav-item-color-hover: var(--text-normal);
+  --nav-item-color-active: var(--text-normal);
+  --nav-item-background-hover: var(--background-modifier-hover);
+  --nav-item-background-active: rgb(255 255 255 / 0.09);
+  --nav-indentation-guide-color: rgb(255 255 255 / 0.08);
+  --background-modifier-form-field: var(--color-base-25);
+  --background-modifier-active-hover: hsl(var(--accent-h) 60% 60% / 0.15);
+  --status-bar-background: var(--background-secondary);
+  --modal-background: var(--background-primary);
+  --shadow-l: 0 8px 32px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.3);
+
+  /* Callout colours (r, g, b) */
+  --callout-default: 90, 156, 242;
+  --callout-info: 90, 156, 242;
+  --callout-todo: 90, 156, 242;
+  --callout-abstract: 79, 198, 208;
+  --callout-tip: 79, 198, 208;
+  --callout-success: 95, 196, 138;
+  --callout-question: 238, 154, 85;
+  --callout-warning: 238, 154, 85;
+  --callout-failure: 240, 98, 106;
+  --callout-danger: 240, 98, 106;
+  --callout-bug: 240, 98, 106;
+  --callout-example: 169, 138, 245;
+  --callout-quote: 146, 146, 156;
+}
+
+/* ─── Editor surface ───────────────────────────────────────── */
+/* The page (title + editor) scrolls as one, like an Obsidian note, so CodeMirror grows
+   with its content instead of scrolling on its own. */
+.mk-theme .cm-editor {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-family: var(--font-text);
+  font-size: var(--font-text-size);
+  min-height: 100%;
+}
+.mk-theme .cm-editor.cm-focused {
+  outline: none;
+}
+.mk-theme .cm-scroller {
+  font-family: inherit;
+  line-height: var(--line-height-normal);
+  padding: 0 48px 96px;
+  overflow: visible;
+}
+.mk-theme .cm-content {
+  max-width: var(--file-line-width);
+  margin: 0 auto;
+  width: 100%;
+  padding: 8px 0 0;
+  caret-color: var(--interactive-accent);
+}
+.mk-theme .cm-line {
+  padding: 0;
+}
+.mk-theme .cm-cursor {
+  border-left: 2px solid var(--interactive-accent);
+}
+.mk-theme .cm-selectionBackground,
+.mk-theme .cm-focused .cm-selectionBackground,
+.mk-theme .cm-content ::selection {
+  background: var(--text-selection) !important;
+}
+.mk-theme .cm-placeholder {
+  color: var(--text-faint);
+}
+
+/* ─── Headings ─────────────────────────────────────────────── */
+.mk-theme .HyperMD-header {
+  padding-top: calc(var(--heading-spacing) * 0.5);
+}
+.mk-theme .cm-header {
+  color: var(--text-normal);
+  line-height: 1.3;
+}
+.mk-theme .cm-header-1 { font-size: var(--h1-size); font-weight: var(--h1-weight); }
+.mk-theme .cm-header-2 { font-size: var(--h2-size); font-weight: var(--h2-weight); }
+.mk-theme .cm-header-3 { font-size: var(--h3-size); font-weight: var(--h3-weight); }
+.mk-theme .cm-header-4 { font-size: var(--h4-size); font-weight: var(--h4-weight); }
+.mk-theme .cm-header-5 { font-size: var(--h5-size); font-weight: var(--h5-weight); }
+.mk-theme .cm-header-6 { font-size: var(--h6-size); font-weight: var(--h6-weight); color: var(--text-muted); }
+
+/* ─── Inline ───────────────────────────────────────────────── */
+.mk-theme .cm-strong { font-weight: var(--bold-weight); }
+.mk-theme .cm-em { font-style: italic; }
+.mk-theme .cm-strikethrough { text-decoration: line-through; }
+.mk-theme .cm-highlight {
+  background: var(--text-highlight-bg);
+  color: var(--text-normal);
+  border-radius: 2px;
+}
+.mk-theme .cm-formatting {
+  color: var(--text-faint);
+}
+.mk-theme .cm-inline-code {
+  background: var(--code-background);
+  color: var(--code-normal);
+  font-family: var(--font-monospace);
+  font-size: var(--code-size);
+  border-radius: var(--code-radius);
+  padding: 0.1em 0.25em;
+}
+.mk-theme .cm-link,
+.mk-theme .cm-hmd-internal-link {
+  color: var(--link-color);
+  text-decoration: var(--link-decoration);
+  text-decoration-thickness: var(--link-decoration-thickness);
+  text-underline-offset: 2px;
+}
+.mk-theme .cm-url {
+  color: var(--text-faint);
+}
+.mk-theme [data-href],
+.mk-theme [data-target] {
+  cursor: pointer;
+}
+.mk-theme .cm-url.external-link {
+  color: var(--link-external-color);
+  text-decoration: underline;
+}
+
+/* ─── Lists & tasks ────────────────────────────────────────── */
+.mk-theme .mk-list-bullet {
+  display: inline-block;
+  width: 1.1em;
+  text-align: center;
+  position: relative;
+}
+.mk-theme .mk-list-bullet::after {
+  content: '';
+  display: inline-block;
+  width: var(--list-bullet-size);
+  height: var(--list-bullet-size);
+  border-radius: 50%;
+  background: var(--list-marker-color);
+  vertical-align: middle;
+  transform: translateY(-0.1em);
+}
+.mk-theme .cm-formatting-list {
+  color: var(--list-marker-color);
+}
+.mk-theme .task-list-item-checkbox {
+  appearance: none;
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  border: 1.5px solid var(--checkbox-border-color);
+  border-radius: var(--checkbox-radius);
+  margin: 0 0.45em 0 0.1em;
+  vertical-align: -0.15em;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.12s, border-color 0.12s;
+}
+.mk-theme .task-list-item-checkbox:hover {
+  border-color: var(--checkbox-color);
+}
+.mk-theme .task-list-item-checkbox:checked {
+  background: var(--checkbox-color);
+  border-color: var(--checkbox-color);
+}
+.mk-theme .task-list-item-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 30%;
+  top: 8%;
+  width: 30%;
+  height: 58%;
+  border: solid var(--background-primary);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.mk-theme .is-checked {
+  color: var(--checklist-done-color);
+  text-decoration: var(--checklist-done-decoration);
+}
+
+/* ─── Blockquotes & callouts ───────────────────────────────── */
+.mk-theme .HyperMD-quote {
+  border-left: var(--blockquote-border-thickness) solid var(--blockquote-border-color);
+  padding-left: 1em !important;
+  color: var(--text-muted);
+}
+.mk-theme .mk-callout {
+  --callout-color: var(--callout-default);
+  background: rgba(var(--callout-color), 0.1);
+  padding: 0 12px 0 16px !important;
+}
+.mk-theme .mk-callout-first {
+  border-top-left-radius: var(--callout-radius);
+  border-top-right-radius: var(--callout-radius);
+  padding-top: 10px !important;
+}
+.mk-theme .mk-callout-last {
+  border-bottom-left-radius: var(--callout-radius);
+  border-bottom-right-radius: var(--callout-radius);
+  padding-bottom: 10px !important;
+}
+.mk-theme .callout-info, .mk-theme .callout-note { --callout-color: var(--callout-info); }
+.mk-theme .callout-todo { --callout-color: var(--callout-todo); }
+.mk-theme .callout-abstract { --callout-color: var(--callout-abstract); }
+.mk-theme .callout-tip { --callout-color: var(--callout-tip); }
+.mk-theme .callout-success { --callout-color: var(--callout-success); }
+.mk-theme .callout-question { --callout-color: var(--callout-question); }
+.mk-theme .callout-warning { --callout-color: var(--callout-warning); }
+.mk-theme .callout-failure { --callout-color: var(--callout-failure); }
+.mk-theme .callout-danger { --callout-color: var(--callout-danger); }
+.mk-theme .callout-bug { --callout-color: var(--callout-bug); }
+.mk-theme .callout-example { --callout-color: var(--callout-example); }
+.mk-theme .callout-quote { --callout-color: var(--callout-quote); }
+.mk-theme .callout-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: var(--bold-weight);
+  color: rgb(var(--callout-color));
+}
+
+/* ─── Code blocks ──────────────────────────────────────────── */
+.mk-theme .HyperMD-codeblock-bg {
+  background: var(--code-background);
+  font-family: var(--font-monospace);
+  font-size: var(--code-size);
+  padding: 0 16px !important;
+}
+.mk-theme .HyperMD-codeblock-begin {
+  border-top-left-radius: var(--code-radius);
+  border-top-right-radius: var(--code-radius);
+  padding-top: 8px !important;
+}
+.mk-theme .HyperMD-codeblock-end {
+  border-bottom-left-radius: var(--code-radius);
+  border-bottom-right-radius: var(--code-radius);
+  padding-bottom: 8px !important;
+}
+.mk-theme .mk-code-lang {
+  float: right;
+  color: var(--text-faint);
+  font-size: 0.85em;
+}
+
+/* ─── Misc ─────────────────────────────────────────────────── */
+.mk-theme .mk-hr {
+  border: none;
+  border-top: var(--hr-thickness) solid var(--hr-color);
+  margin: 0.8em 0;
+}
+.mk-theme .mk-image {
+  max-width: 100%;
+  border-radius: 4px;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+/* Source mode: plain monospace-free Markdown, no hidden syntax. */
+.mk-theme .is-source-mode .cm-header {
+  font-size: inherit;
+}
+
+/* ─── Inline title (Obsidian shows the note name as the first heading) ── */
+.mk-theme .inline-title {
+  /* --h1-size is relative (em); inputs don't inherit font-size, so anchor it to the text size. */
+  font-family: var(--font-text);
+  font-size: calc(var(--font-text-size) * 1.62);
+  font-weight: var(--h1-weight);
+  color: var(--text-normal);
+  background: transparent;
+  outline: none;
+  width: 100%;
+  line-height: 1.3;
+  margin: 0;
+}
+.mk-theme .inline-title::placeholder {
+  color: var(--text-faint);
+}
+
+/* ─── Folding (chevron in the left margin, like Obsidian) ───────────── */
+.mk-theme .cm-line {
+  position: relative;
+}
+.mk-theme .mk-fold-indicator {
+  position: absolute;
+  left: -26px;
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+  user-select: none;
+}
+/* Bullets and checkboxes sit after indentation; keep the chevron just left of the text. */
+.mk-theme .HyperMD-list-line .mk-fold-indicator {
+  left: -22px;
+}
+.mk-theme .cm-line:hover .mk-fold-indicator,
+.mk-theme .mk-fold-indicator.is-collapsed {
+  opacity: 1;
+}
+.mk-theme .mk-fold-indicator:hover {
+  color: var(--text-normal);
+}
+.mk-theme .mk-fold-indicator svg {
+  transition: transform 0.12s;
+}
+.mk-theme .mk-fold-indicator.is-collapsed svg {
+  transform: rotate(-90deg);
+}
+.mk-theme .mk-fold-placeholder {
+  display: inline-block;
+  margin-left: 0.4em;
+  padding: 0 0.4em;
+  border-radius: 4px;
+  color: var(--text-faint);
+  background: var(--background-modifier-hover);
+  cursor: pointer;
+  line-height: 1.2;
+}
+.mk-theme .mk-fold-placeholder:hover {
+  color: var(--text-normal);
+}
+/* Heading lines carry top padding; centre the chevron on the text, not the padded box. */
+.mk-theme .HyperMD-header .mk-fold-indicator {
+  top: calc(var(--heading-spacing) * 0.5);
+}

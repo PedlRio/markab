@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="#18181b"/>
+  <rect x="4.5" y="4.5" width="119" height="119" rx="27.5" fill="none" stroke="#3f3f46"/>
+  <!-- Markab: a four-point star -->
+  <path d="M64 22 C68 50 78 60 106 64 C78 68 68 78 64 106 C60 78 50 68 22 64 C50 60 60 50 64 22 Z" fill="#fafafa"/>
+  <circle cx="64" cy="64" r="7" fill="#60a5fa"/>
+</svg>
