@@ -9,6 +9,7 @@ import { GFM } from '@lezer/markdown'
 import { compressImageFile } from '@/lib/image'
 import { obsidianFolding } from './folding'
 import { livePreview } from './livePreview'
+import { attachmentResolver, type AttachmentResolver } from './widgets'
 import { Highlight, WikiLink } from './syntax'
 
 /** Code-block colours, read from the same `--code-*` variables Obsidian themes define. */
@@ -112,20 +113,53 @@ const linkClicks = (handlers: LinkHandlers) =>
     },
   })
 
-const imagePaste = EditorView.domEventHandlers({
-  paste(event, view) {
-    const files = Array.from(event.clipboardData?.files ?? []).filter((f) => f.type.startsWith('image/'))
-    if (!files.length) return false
-    event.preventDefault()
-    for (const file of files) {
-      void compressImageFile(file).then((src) => {
-        const { from, to } = view.state.selection.main
-        view.dispatch({ changes: { from, to, insert: `![](${src})` }, userEvent: 'input.paste' })
-      })
-    }
-    return true
-  },
-})
+export interface AttachmentHandlers {
+  /** Store the file in the vault and return the name to embed, or null to embed it inline. */
+  save: (file: File) => Promise<string | null>
+  resolve: AttachmentResolver
+}
+
+/**
+ * Pasted or dropped images: with a vault, saved as a file there and embedded as
+ * `![[Pasted image ….png]]` (exactly what Obsidian does); without one, inlined as a
+ * compressed data URL so the note still keeps the picture.
+ */
+function imageInput(attachments: AttachmentHandlers | undefined) {
+  const insert = (view: EditorView, files: File[], at?: number) => {
+    void (async () => {
+      for (const file of files) {
+        const name = attachments ? await attachments.save(file).catch(() => null) : null
+        const text = name ? `![[${name}]]` : `![](${await compressImageFile(file)})`
+        const pos = at ?? view.state.selection.main.from
+        const to = at ?? view.state.selection.main.to
+        view.dispatch({
+          changes: { from: pos, to, insert: text },
+          selection: { anchor: pos + text.length },
+          userEvent: 'input.paste',
+        })
+        at = at === undefined ? undefined : pos + text.length
+      }
+    })()
+  }
+  const images = (list: FileList | undefined | null) =>
+    Array.from(list ?? []).filter((f) => f.type.startsWith('image/'))
+  return EditorView.domEventHandlers({
+    paste(event, view) {
+      const files = images(event.clipboardData?.files)
+      if (!files.length) return false
+      event.preventDefault()
+      insert(view, files)
+      return true
+    },
+    drop(event, view) {
+      const files = images(event.dataTransfer?.files)
+      if (!files.length) return false
+      event.preventDefault()
+      insert(view, files, view.posAtCoords({ x: event.clientX, y: event.clientY }) ?? undefined)
+      return true
+    },
+  })
+}
 
 /** Live Preview ⇄ Source mode, swapped at runtime without rebuilding the editor. */
 export const previewMode = new Compartment()
@@ -137,6 +171,7 @@ export function buildCmExtensions(opts: {
   onChange: (markdown: string) => void
   links: LinkHandlers
   livePreview: boolean
+  attachments?: AttachmentHandlers
 }): Extension[] {
   return [
     history(),
@@ -154,7 +189,8 @@ export function buildCmExtensions(opts: {
     keymap.of([...defaultKeymap, ...historyKeymap, ...foldKeymap]),
     placeholder('Start writing…'),
     linkClicks(opts.links),
-    imagePaste,
+    imageInput(opts.attachments),
+    ...(opts.attachments ? [attachmentResolver.of(opts.attachments.resolve)] : []),
     EditorView.contentAttributes.of({ 'aria-label': 'Note content', spellcheck: 'true' }),
     EditorView.updateListener.of((u) => {
       if (u.docChanged) opts.onChange(u.state.doc.toString())

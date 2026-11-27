@@ -41,7 +41,7 @@ Markab requests no host permissions and makes no network requests.
 - **Autosave**: saves 400 ms after you stop typing, and immediately when the tab closes.
 - **Multiple tabs**: every open tab stays in sync, and no tab overwrites another's edits.
 - **Privacy overlay**: new tabs open hidden (toggle with `⌘⇧H`). You can turn this off under **Aa** → *Hide notes when a new tab opens*.
-- **Obsidian vault sync**: one-way. Notes are written as `.md` files with YAML frontmatter, and folders become subfolders. Chrome asks again for folder access after a restart; click **Allow access** in the sidebar.
+- **Obsidian vault sync** (two-way): connect a vault folder and each note is a `Title.md` file there, with folders as directories and any frontmatter you add in Obsidian kept as-is. Notes, edits, renames, moves and deletions made in Obsidian are picked up when you open or come back to the tab. If the same note changed on both sides, the edits are merged line by line (like git) when they touch different lines; when both changed the same line, the Obsidian version wins and Markab's version is saved as a `(conflict …)` copy, so nothing is lost. Pasted or dropped images are saved as files in the vault, where Obsidian's *Default location for new attachments* setting says, and embedded as `![[Pasted image ….png]]`; `![[image.png|300]]` embeds from the vault are displayed. Without a vault, pasted images are kept inside the note. Hidden folders (`.obsidian`, `.trash`) are ignored. Chrome asks again for folder access after a restart; click **Allow access** (bottom-left vault menu or Settings).
 - **Backup**: *Export backup* / *Import backup* (JSON) at the bottom of the sidebar. Use it to move notes between browsers or to a store-installed copy.
 
 ## Development

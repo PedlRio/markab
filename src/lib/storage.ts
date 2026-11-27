@@ -1,5 +1,5 @@
 import { browser } from 'wxt/browser'
-import type { Folder, Note, Prefs, VaultMeta } from './types'
+import type { Folder, Note, NoteSyncState, Prefs, VaultMeta } from './types'
 
 /**
  * Persistence layout in `browser.storage.local`:
@@ -9,6 +9,8 @@ import type { Folder, Note, Prefs, VaultMeta } from './types'
  *   prefs       → Prefs
  *   vaultMeta   → VaultMeta
  *   schema      → number      layout version (see `migrate`)
+ *   vault:<id>  → NoteSyncState   where that note lives in the Obsidian vault
+ *   vaultFolders→ string[]    ids of folders known to exist in the vault
  *
  * Every write is picked up by the other open tabs through `subscribe`.
  */
@@ -16,12 +18,16 @@ import type { Folder, Note, Prefs, VaultMeta } from './types'
 export const SCHEMA_VERSION = 2
 const NOTE_PREFIX = 'note:'
 const noteKey = (id: string) => `${NOTE_PREFIX}${id}`
+const SYNC_PREFIX = 'vault:'
+const syncKey = (id: string) => `${SYNC_PREFIX}${id}`
 
 export interface Snapshot {
   notes: Note[]
   folders: Folder[]
   prefs: Partial<Prefs> | undefined
   vaultMeta: VaultMeta | undefined
+  syncStates: Record<string, NoteSyncState>
+  vaultFolders: string[]
 }
 
 const local = () => browser.storage.local
@@ -69,7 +75,35 @@ export async function loadSnapshot(): Promise<Snapshot> {
     folders: (all.folders as Folder[] | undefined) ?? [],
     prefs: all.prefs as Partial<Prefs> | undefined,
     vaultMeta: all.vaultMeta as VaultMeta | undefined,
+    syncStates: Object.fromEntries(
+      Object.entries(all)
+        .filter(([key]) => key.startsWith(SYNC_PREFIX))
+        .map(([key, value]) => [key.slice(SYNC_PREFIX.length), value as NoteSyncState]),
+    ),
+    vaultFolders: (all.vaultFolders as string[] | undefined) ?? [],
   }
+}
+
+export async function loadNote(id: string): Promise<Note | undefined> {
+  return (await local().get(noteKey(id)))[noteKey(id)] as Note | undefined
+}
+
+export async function loadSyncState(id: string): Promise<NoteSyncState | undefined> {
+  return (await local().get(syncKey(id)))[syncKey(id)] as NoteSyncState | undefined
+}
+
+export const saveSyncStates = (states: Record<string, NoteSyncState>) =>
+  local().set(Object.fromEntries(Object.entries(states).map(([id, s]) => [syncKey(id), s])))
+export const deleteSyncStates = (ids: string[]) => local().remove(ids.map(syncKey))
+export const saveVaultFolders = (ids: string[]) => local().set({ vaultFolders: ids })
+export async function loadVaultFolders(): Promise<string[]> {
+  return ((await local().get('vaultFolders')).vaultFolders as string[] | undefined) ?? []
+}
+
+/** Forget every vault location (used when a different vault is connected). */
+export async function clearSyncStates(): Promise<void> {
+  const all = await local().get(null)
+  await local().remove([...Object.keys(all).filter((k) => k.startsWith(SYNC_PREFIX)), 'vaultFolders'])
 }
 
 export const saveNote = (note: Note) => local().set({ [noteKey(note.id)]: note })

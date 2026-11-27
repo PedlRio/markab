@@ -7,9 +7,27 @@ export interface Note {
   updatedAt: number
   tags: string[]
   folderId: string | null
-  /** Where the note was last written in the Obsidian vault, so renames/moves can clean up. */
+  /** YAML frontmatter block exactly as found in the vault file (`---\n…\n---\n`), kept verbatim. */
+  frontmatter?: string
+  /** @deprecated v1 vault location; read once to migrate into `NoteSyncState`. */
   syncedFilename?: string
+  /** @deprecated see `syncedFilename`. */
   syncedFolderPath?: string
+}
+
+/**
+ * Where a note lives in the Obsidian vault and which version of it is there. Stored apart
+ * from the note (`vault:<id>`) so syncing never rewrites the note while it is being edited.
+ */
+export interface NoteSyncState {
+  /** Vault path, e.g. `Projects/Idea.md`. */
+  path: string
+  /** The file's lastModified right after Markab last wrote or read it. */
+  mtime: number
+  /** The note's `updatedAt` that the file currently holds. */
+  version: number
+  /** The file's text as of the last sync: the common ancestor for merging edits made on both sides. */
+  base?: string
 }
 
 export interface Folder {
