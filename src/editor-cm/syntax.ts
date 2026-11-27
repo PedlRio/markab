@@ -1,5 +1,5 @@
 import { tags } from '@lezer/highlight'
-import type { MarkdownConfig } from '@lezer/markdown'
+import type { InlineContext, MarkdownConfig } from '@lezer/markdown'
 
 const PUNCTUATION = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~\p{P}\p{S}]/u
 
@@ -35,31 +35,51 @@ export const Highlight: MarkdownConfig = {
   ],
 }
 
-/** Obsidian internal links: `[[Note]]`, `[[Note|alias]]`, `[[Note#Heading]]`. */
+/** Length of `[[…]]` starting at `pos`, or -1 when there is no valid one. */
+function wikiLinkEnd(cx: InlineContext, pos: number): number {
+  if (cx.char(pos) !== 91 /* [ */ || cx.char(pos + 1) !== 91) return -1
+  const rest = cx.slice(pos + 2, cx.end)
+  const close = rest.indexOf(']]')
+  if (close <= 0 || /[[\]\n]/.test(rest.slice(0, close))) return -1
+  return pos + 2 + close + 2
+}
+
+const wikiLinkElt = (cx: InlineContext, from: number, to: number) =>
+  cx.elt('WikiLink', from, to, [
+    cx.elt('WikiLinkMark', from, from + 2),
+    cx.elt('WikiLinkTarget', from + 2, to - 2),
+    cx.elt('WikiLinkMark', to - 2, to),
+  ])
+
+/**
+ * Obsidian internal links `[[Note]]`, `[[Note|alias]]`, `[[Note#Heading]]`, and embeds
+ * `![[image.png|300]]` (an `Embed` wrapping the link). The embed parser must run before
+ * CommonMark's Image, which would otherwise claim the `![`.
+ */
 export const WikiLink: MarkdownConfig = {
   defineNodes: [
     { name: 'WikiLink', style: tags.link },
     { name: 'WikiLinkMark', style: tags.processingInstruction },
     { name: 'WikiLinkTarget' },
+    { name: 'Embed' },
+    { name: 'EmbedMark', style: tags.processingInstruction },
   ],
   parseInline: [
     {
-      name: 'WikiLink',
+      name: 'Embed',
       parse(cx, next, pos) {
-        if (next !== 91 /* [ */ || cx.char(pos + 1) !== 91) return -1
-        const rest = cx.slice(pos + 2, cx.end)
-        const close = rest.indexOf(']]')
-        if (close <= 0) return -1
-        const inner = rest.slice(0, close)
-        if (/[[\]\n]/.test(inner)) return -1
-        const end = pos + 2 + close + 2
-        return cx.addElement(
-          cx.elt('WikiLink', pos, end, [
-            cx.elt('WikiLinkMark', pos, pos + 2),
-            cx.elt('WikiLinkTarget', pos + 2, end - 2),
-            cx.elt('WikiLinkMark', end - 2, end),
-          ]),
-        )
+        if (next !== 33 /* ! */) return -1
+        const end = wikiLinkEnd(cx, pos + 1)
+        if (end < 0) return -1
+        return cx.addElement(cx.elt('Embed', pos, end, [cx.elt('EmbedMark', pos, pos + 1), wikiLinkElt(cx, pos + 1, end)]))
+      },
+      before: 'Image',
+    },
+    {
+      name: 'WikiLink',
+      parse(cx, _next, pos) {
+        const end = wikiLinkEnd(cx, pos)
+        return end < 0 ? -1 : cx.addElement(wikiLinkElt(cx, pos, end))
       },
       before: 'Link',
     },

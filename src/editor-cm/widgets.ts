@@ -1,4 +1,11 @@
+import { Facet } from '@codemirror/state'
 import { EditorView, WidgetType } from '@codemirror/view'
+
+/** Turns an embed name (`cat.png`) into a displayable URL; provided by the editor host. */
+export type AttachmentResolver = (name: string) => Promise<string | null>
+export const attachmentResolver = Facet.define<AttachmentResolver, AttachmentResolver | null>({
+  combine: (values) => values[0] ?? null,
+})
 
 export class BulletWidget extends WidgetType {
   override eq() {
@@ -157,4 +164,44 @@ export function calloutFamily(type: string): string {
   if (['quote', 'cite'].includes(t)) return 'quote'
   if (['info', 'todo', 'bug', 'example'].includes(t)) return t
   return 'note'
+}
+
+/** `![[image.png|300]]`: an image stored as a file in the vault, loaded through the resolver. */
+export class EmbedImageWidget extends WidgetType {
+  constructor(
+    readonly name: string,
+    readonly width: number | null,
+  ) {
+    super()
+  }
+  override eq(other: EmbedImageWidget) {
+    return other.name === this.name && other.width === this.width
+  }
+  toDOM(view: EditorView) {
+    const wrap = document.createElement('span')
+    wrap.className = 'internal-embed image-embed'
+    wrap.dataset.src = this.name
+    const img = document.createElement('img')
+    img.className = 'mk-image'
+    img.alt = this.name
+    img.draggable = false
+    if (this.width) img.width = this.width
+    wrap.append(img)
+    const resolve = view.state.facet(attachmentResolver)
+    const missing = () => {
+      wrap.classList.add('is-unresolved')
+      wrap.textContent = `⚠ ${this.name} not found in the vault`
+    }
+    if (!resolve) missing()
+    else {
+      void resolve(this.name).then((url) => {
+        if (url) img.src = url
+        else missing()
+      })
+    }
+    return wrap
+  }
+  override get estimatedHeight() {
+    return 160
+  }
 }

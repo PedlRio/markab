@@ -2,6 +2,7 @@ import { syntaxTree } from '@codemirror/language'
 import type { EditorState, Range } from '@codemirror/state'
 import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate } from '@codemirror/view'
 import type { SyntaxNodeRef } from '@lezer/common'
+import { IMAGE_EXT } from '@/lib/vault'
 import { parseWikiTarget } from './syntax'
 import {
   BulletWidget,
@@ -9,6 +10,7 @@ import {
   calloutFamily,
   CheckboxWidget,
   CodeLanguageWidget,
+  EmbedImageWidget,
   HrWidget,
   ImageWidget,
 } from './widgets'
@@ -171,6 +173,21 @@ function decorate(b: Builder, from: number, to: number) {
       if (name === 'WikiLink') {
         const inner = state.sliceDoc(node.from + 2, node.to - 2)
         const { target, label } = parseWikiTarget(inner)
+
+        // `![[file.png]]` / `![[file.png|300]]`: an embedded attachment.
+        const isEmbed = state.sliceDoc(node.from - 1, node.from) === '!'
+        if (isEmbed && IMAGE_EXT.test(target)) {
+          const from = node.from - 1
+          if (b.touches(from, node.to)) {
+            b.add(from, node.to, mark('cm-formatting cm-embed'))
+          } else {
+            const size = /\|(\d+)(?:x\d+)?$/.exec(inner)
+            const name = inner.split('|')[0]!.trim()
+            b.widget(from, node.to, Decoration.replace({ widget: new EmbedImageWidget(name, size ? Number(size[1]) : null) }))
+          }
+          return false
+        }
+
         if (b.touches(node.from, node.to)) {
           b.add(node.from + 2, node.to - 2, mark('cm-hmd-internal-link'))
           b.add(node.from, node.from + 2, mark('cm-formatting'))

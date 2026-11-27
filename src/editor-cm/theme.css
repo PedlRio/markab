@@ -443,3 +443,19 @@
 .mk-theme .HyperMD-header .mk-fold-indicator {
   top: calc(var(--heading-spacing) * 0.5);
 }
+
+/* ─── Embedded attachments (![[image.png]]) ─────────────────── */
+.mk-theme .internal-embed {
+  display: inline-block;
+  max-width: 100%;
+}
+.mk-theme .internal-embed.is-unresolved {
+  color: var(--text-faint);
+  font-size: 0.9em;
+  padding: 0.2em 0.5em;
+  border: 1px dashed var(--background-modifier-border);
+  border-radius: 4px;
+}
+.mk-theme .cm-embed {
+  color: var(--text-muted);
+}

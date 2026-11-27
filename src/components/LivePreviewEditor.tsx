@@ -51,6 +51,10 @@ export function LivePreviewEditor({ note }: { note: Note }) {
             openExternal: (href) => window.open(href, '_blank', 'noopener'),
             openInternal: (target) => openNoteRef.current(target),
           },
+          attachments: {
+            save: (file) => useNotes.getState().saveAttachment(file, note.id),
+            resolve: (name) => useNotes.getState().resolveAttachment(name),
+          },
         }),
       }),
     })

@@ -97,6 +97,7 @@ function VaultSettings() {
   const vaultName = useNotes((s) => s.vaultName)
   const lastSyncedAt = useNotes((s) => s.lastSyncedAt)
   const syncError = useNotes((s) => s.syncError)
+  const syncReport = useNotes((s) => s.syncReport)
   const { connectVault, reauthorizeVault, disconnectVault, resyncVault } = useNotes.getState()
   const [busy, setBusy] = useState(false)
   const run = (fn: () => Promise<void>) => async () => {
@@ -114,7 +115,7 @@ function VaultSettings() {
         name={status === 'disconnected' ? 'Not connected' : (vaultName ?? 'Vault')}
         description={
           status === 'disconnected'
-            ? 'Write every note as a .md file into a folder of your Obsidian vault.'
+            ? 'Keep notes in sync with your Obsidian vault: each note is a .md file there, and edits made in Obsidian show up here.'
             : status === 'needs-permission'
               ? 'Chrome needs your permission again to write to this folder.'
               : `Synced ${relative(lastSyncedAt)}`
@@ -143,6 +144,7 @@ function VaultSettings() {
           )}
         </div>
       </SettingItem>
+      {syncReport && status === 'connected' && <p className="pb-2 text-xs text-(--text-muted)">{syncReport}</p>}
       {syncError && <p className="pb-2 text-xs text-(--color-red)">{syncError}</p>}
     </>
   )

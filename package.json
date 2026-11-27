@@ -40,6 +40,7 @@
     "@tiptap/starter-kit": "^3.35.0",
     "@tiptap/y-tiptap": "^3.3.1",
     "lucide-react": "^1.81.0",
+    "node-diff3": "^4.0.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "zustand": "^5.1.0"
